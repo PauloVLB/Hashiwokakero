@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <cstdio>
 
 #define ii pair<int, int>
 #define fs first
@@ -23,24 +24,43 @@ struct coord {
 
 struct cell {
     cell *lft, *rgt, *top, *bot;
-    int val;
+    int init_val, val;
     int line;
     coord cd;
 
     cell() {
         val = 0;
+        init_val = 0;
         line = NO_LINE;
     }
 
     cell(int v) : val(v) {}
 
     bool is_island() {
+        return is_open_island() || is_closed_island();
+    }
+    bool is_open_island() {
         return (val >= 1 && val <= 8);
     }
 
+    bool is_closed_island() {
+        return val == -1;
+    }
+ 
     int qnt_adj() {
-        return (this->lft != nullptr) + (this->rgt != nullptr) 
-             + (this->top != nullptr) + (this->bot != nullptr); 
+        return (is_adjacent(this->lft)) + (is_adjacent(this->rgt)) 
+             + (is_adjacent(this->top)) + (is_adjacent(this->bot)); 
+    }
+
+    void decrease_val() {
+        val--;
+        if(val == 0) {
+            this->lft = nullptr;
+            this->rgt = nullptr;
+            this->top = nullptr;
+            this->bot = nullptr;
+            val = -1;
+        }
     }
 
     void add_line(int dir) {
@@ -65,28 +85,32 @@ struct cell {
 
     vector<cell*> adj_list() {
         vector<cell*> ans;
-        if(this->lft != nullptr) ans.push_back(this->lft);
-        if(this->rgt != nullptr) ans.push_back(this->rgt);
-        if(this->top != nullptr) ans.push_back(this->top);
-        if(this->bot != nullptr) ans.push_back(this->bot);
+        if(is_adjacent(this->lft)) ans.push_back(this->lft);
+        if(is_adjacent(this->rgt)) ans.push_back(this->rgt);
+        if(is_adjacent(this->top)) ans.push_back(this->top);
+        if(is_adjacent(this->bot)) ans.push_back(this->bot);
 
         return ans;
     }
 
     string get_cell_val(string dir) {
         if(dir == "lft") {
-            if(this->lft != nullptr) return to_string(this->lft->val);
+            if(is_adjacent(this->lft)) return to_string(this->lft->val);
         } else if(dir == "rgt") {
-            if(this->rgt != nullptr) return to_string(this->rgt->val);
+            if(is_adjacent(this->rgt)) return to_string(this->rgt->val);
         } else if(dir == "top") {
-            if(this->top != nullptr) return to_string(this->top->val);
+            if(is_adjacent(this->top)) return to_string(this->top->val);
         } else if(dir == "bot") {
-            if(this->bot != nullptr) return to_string(this->bot->val);
+            if(is_adjacent(this->bot)) return to_string(this->bot->val);
         } else {
             return "INVALID DIRECTION";
         }
 
         return "X";
+    }
+
+    friend bool is_adjacent(cell* c) {
+        return c != nullptr && c->is_open_island();
     }
 };
 
@@ -94,6 +118,7 @@ typedef vector<vector<cell>> board_t;
 
 int n, m, qi; 
 board_t board;
+
 
 bool are_same_line(cell c1, cell c2) {
     return c1.cd.x == c2.cd.x;
@@ -120,10 +145,40 @@ void print_cell_info(cell c) {
     cout << " } ";
 }
 
-void connect_cells(cell c1, cell c2) {
+void print_cell(cell c) {
+    if(c.is_island()) {
+        cout << board[c.cd.x][c.cd.y].init_val << " ";
+    } else {
+        switch (c.line) {
+            case NO_LINE:
+                cout << " ";
+                break;
+            case HORIZONTAL:
+                cout << "-";
+                break;
+            case D_HORIZONTAL:
+                cout << "=";
+                break;
+            case VERTICAL:
+                cout << "|";
+                break;
+            case D_VERTICAL:
+                cout << "^";
+                break;
+            default:
+                cout << "?";
+        }
+        cout << " ";
+    }
+}
+
+void connect_cells(cell &c1, cell &c2) {
     if(!(are_same_line(c1, c2) || are_same_collum(c1, c2))) {
         return;
     }
+
+    c1.decrease_val();
+    c2.decrease_val();
 
     if(are_same_line(c1, c2)) {
         int min_y = min(c1.cd.y, c2.cd.y);
@@ -146,12 +201,15 @@ int main() {
     cin >> n >> m >> qi;
 
     board = board_t(n, vector<cell>(m));
+
     vector<cell*> last_island_r(n, nullptr), last_island_c(m, nullptr);
 
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
             cell &c = board[i][j];
             cin >> c.val;
+            c.init_val = c.val;
+
             c.cd.x = i;
             c.cd.y = j;
             
@@ -182,24 +240,50 @@ int main() {
         }
     }
 
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            cell &c = board[i][j];
+    int changed = 0;
+    do {
+        changed = 0;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                cell &c = board[i][j];
 
-            if(c.is_island()) {
-                if(c.qnt_adj() == 1) {
-                    //if(c.val > 2){/*TÁ ERRADOOOOOO*/}                    
-                    cout << "entrou aqui no " << i << " " << j << endl;
-                    cell* to_connect = c.adj_list().back(); 
-                    connect_cells(c, *to_connect);
+                if(c.is_island()) {
+                    if(c.qnt_adj() == 1) {
+                        changed++;
+                        //if(c.val > 2){/*TÁ ERRADOOOOOO*/}                    
+                        //cout << "entrou aqui no " << i << " " << j << endl;
+                        cell* to_connect = c.adj_list().back(); 
+                        connect_cells(c, *to_connect);
+                    }
+                    if(c.val == 4 && c.qnt_adj() == 2) {
+                        changed++;
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+                    if(c.val == 8 && c.qnt_adj() == 4) {
+                        changed++;
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+                    
                 }
             }
         }
-    }
+    } while(changed != 0);
 
-    for(int i = 0; i < n; i++) {
+    /*for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
             print_cell_info(board[i][j]);
+        }
+        cout << endl;
+    }*/
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            print_cell(board[i][j]);
         }
         cout << endl;
     }
