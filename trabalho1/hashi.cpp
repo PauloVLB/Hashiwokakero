@@ -63,13 +63,12 @@ struct cell {
         }
     }
 
-    void add_line(int dir) {
+    bool add_line(int dir) {
         if(line == NO_LINE) {
             line = dir;
         } else {
             line++;
         }
-
         if(dir == HORIZONTAL) {
             if(this->top != nullptr && this->bot != nullptr) {
                 this->top->bot = nullptr;
@@ -80,6 +79,11 @@ struct cell {
                 this->rgt->lft = nullptr;
                 this->lft->rgt = nullptr; 
             }
+        }
+        if(line == D_HORIZONTAL || line == D_VERTICAL){
+            return true;
+        }else{
+            return false;
         }
     }
 
@@ -173,20 +177,38 @@ void connect_cells(cell &c1, cell &c2) {
 
     c1.decrease_val();
     c2.decrease_val();
-
+    bool full = false;
     if(are_same_line(c1, c2)) {
         int min_y = min(c1.cd.y, c2.cd.y);
         int max_y = max(c1.cd.y, c2.cd.y);
         int my_x = c1.cd.x;
         for(int j = min_y + 1; j <= max_y - 1; j++) {
-            board[my_x][j].add_line(HORIZONTAL);
+            full = board[my_x][j].add_line(HORIZONTAL);
+        }
+        if(full){
+            if(c1.cd.y < c2.cd.y){
+                c1.rgt = nullptr;
+                c2.lft = nullptr;
+            }else{
+                c2.rgt = nullptr;
+                c1.lft = nullptr;
+            }
         }
     } else {
         int min_x = min(c1.cd.x, c2.cd.x);
         int max_x = max(c1.cd.x, c2.cd.x);
         int my_y = c1.cd.y;
         for(int i = min_x + 1; i <= max_x - 1; i++) {
-            board[i][my_y].add_line(VERTICAL);
+            full = board[i][my_y].add_line(VERTICAL);
+        }
+        if(full){
+            if(c1.cd.x < c2.cd.x){
+                c1.bot = nullptr;
+                c2.top = nullptr;
+            }else{
+                c2.bot = nullptr;
+                c1.top = nullptr;
+            }
         }
     }
 }
@@ -264,6 +286,18 @@ int main() {
                 cell &c = board[i][j];
 
                 if(c.is_island()) {
+                    // for(int i = 4; i <= 8; i = i + 2) {
+                    //     int need_adj = i/2;
+                    //     if(c.init_val == i && c.qnt_adj() == need_adj) {
+                    //         changed++;
+                    //         for(cell* to_connect : c.adj_list()) {
+                    //             connect_cells(c, *to_connect);
+                    //         }
+                    //         for(cell* to_connect : c.adj_list()) {
+                    //             connect_cells(c, *to_connect);
+                    //         }
+                    //     }
+                    // }
                     for(int i = 4; i <= 8; i++) {
                         int need_adj = i/2 + i%2;
                         if(c.val == i && c.qnt_adj() == need_adj) {

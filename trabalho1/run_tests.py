@@ -8,7 +8,8 @@ print("Compilando programas: ")
 for p in programs:
     os.system(f'make {p}')
 print()
-
+AC = 0
+WA = 0
 for folder in tests_folders:
     qnt_tests = len(os.listdir(folder))
     
@@ -43,10 +44,14 @@ for folder in tests_folders:
             print(Fore.BLACK + Back.GREEN + Style.BRIGHT + 'ACCEPTED', end="")
             print(Style.RESET_ALL, end="")
             print()
+            AC = AC + 1
         else:
             print(Fore.BLACK + Back.RED + Style.BRIGHT + 'WRONG ANSWER', end="")
             print(Style.RESET_ALL, end="")
             print()
+            WA = WA + 1
         
         print(Fore.BLACK + Back.BLUE + Style.BRIGHT + "-"*30, end="")
         print(Style.RESET_ALL)
+print("Aceitas: ", AC)
+print("Erradas: ", WA)
