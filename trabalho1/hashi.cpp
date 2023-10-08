@@ -118,7 +118,8 @@ typedef vector<vector<cell>> board_t;
 
 int n, m, qi; 
 board_t board;
-
+map<cell, vector<cell>> adj_list;
+vector<pair<cell, cell>> edg_list;
 
 bool are_same_line(cell c1, cell c2) {
     return c1.cd.x == c2.cd.x;
@@ -166,6 +167,10 @@ void connect_cells(cell &c1, cell &c2) {
         return;
     }
 
+    //adj_list[c1].push_back(c2);
+    //adj_list[c2].push_back(c1);
+    edg_list.push_back({c1, c2});
+
     c1.decrease_val();
     c2.decrease_val();
 
@@ -186,8 +191,26 @@ void connect_cells(cell &c1, cell &c2) {
     }
 }
 
+void print_board() {
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            print_cell(board[i][j]);
+        }
+        cout << endl;
+    }
+}
+
+void print_edg_list() {
+    cout << qi << " " << (int) edg_list.size() << endl;
+    for(auto e : edg_list) {
+        printf("%d %d %d %d\n", e.first.cd.x, e.first.cd.y,
+                              e.second.cd.x, e.second.cd.y);
+    }
+}
+
 int main() {
-    cin >> m >> n >> qi;
+    cin >> m >> n >> qi; qi = 0;
+    cout << m << " " << n << endl;
 
     board = board_t(n, vector<cell>(m));
 
@@ -197,6 +220,8 @@ int main() {
         for(int j = 0; j < m; j++) {
             cell &c = board[i][j];
             cin >> c.val;
+            cout << c.val << " ";
+
             c.init_val = c.val;
 
             c.cd.x = i;
@@ -206,10 +231,12 @@ int main() {
             c.top = last_island_c[j];
 
             if(c.is_island()) {
+                qi++;
                 last_island_c[j] = &c; 
                 last_island_r[i] = &c;  
             }
         }
+        cout << endl;
     }
 
     last_island_r = vector<cell*>(n, nullptr);
@@ -237,50 +264,22 @@ int main() {
                 cell &c = board[i][j];
 
                 if(c.is_island()) {
+                    for(int i = 4; i <= 8; i++) {
+                        int need_adj = i/2 + i%2;
+                        if(c.val == i && c.qnt_adj() == need_adj) {
+                            changed++;
+                            for(cell* to_connect : c.adj_list()) {
+                                connect_cells(c, *to_connect);
+                                if(i%2 == 0) {
+                                    connect_cells(c, *to_connect);
+                                }
+                            }
+                        }
+                    }
                     if(c.qnt_adj() == 1) {
                         changed++;
                         cell* to_connect = c.adj_list().back(); 
                         connect_cells(c, *to_connect);
-                    }
-                    if(c.val == 6 && c.qnt_adj() == 3) {
-                        changed++;
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                            connect_cells(c, *to_connect);
-                        }
-                    }
-
-                    if(c.val == 4 && c.qnt_adj() == 2) {
-                        changed++;
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                            connect_cells(c, *to_connect);
-                        }
-                    }
-                    if(c.val == 8 && c.qnt_adj() == 4) {
-                        changed++;
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                            connect_cells(c, *to_connect);
-                        }
-                    }
-                    if(c.val == 5 && c.qnt_adj() == 3) {
-                        changed++;
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                        }
-                    }
-                    if(c.val == 7 && c.qnt_adj() == 4) {
-                        changed++;
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                        }
-                    }
-                    if(c.val == 3 && c.qnt_adj() == 2) {
-                        changed++;
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                        }
                     }
                     /*if(c.val > c.qnt_adj()) {
                         changed++;
@@ -289,6 +288,10 @@ int main() {
                         }
                     }*/
                 }
+
+                /*cout << "(" << c.cd.x << ", " << c.cd.y << ") = " << c.init_val << " ------------------\n";
+                print_board();
+                cout << "------------------\n";*/
             }
         }
     } while(changed != 0);
@@ -299,10 +302,7 @@ int main() {
         }
         cout << endl;
     }*/
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            print_cell(board[i][j]);
-        }
-        cout << endl;
-    }
+    print_edg_list();
+    cout << endl;
+    print_board();
 }
