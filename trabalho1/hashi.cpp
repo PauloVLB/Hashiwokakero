@@ -149,26 +149,15 @@ void print_cell(cell c) {
     if(c.is_island()) {
         cout << board[c.cd.x][c.cd.y].init_val << " ";
     } else {
-        switch (c.line) {
-            case NO_LINE:
-                cout << " ";
-                break;
-            case HORIZONTAL:
-                cout << "-";
-                break;
-            case D_HORIZONTAL:
-                cout << "=";
-                break;
-            case VERTICAL:
-                cout << "|";
-                break;
-            case D_VERTICAL:
-                cout << "^";
-                break;
-            default:
-                cout << "?";
-        }
-        cout << " ";
+        vector<string> switch_line(6);
+        switch_line[NO_LINE] = " ";
+        switch_line[HORIZONTAL] = "-";
+        switch_line[D_HORIZONTAL] = "=";
+        switch_line[VERTICAL] = "|";
+        switch_line[D_VERTICAL] = "ǁ"; 
+
+        if(c.line > D_VERTICAL) cout << "? ";
+        else cout << switch_line[c.line] << " ";
     }
 }
 
@@ -198,7 +187,7 @@ void connect_cells(cell &c1, cell &c2) {
 }
 
 int main() {
-    cin >> n >> m >> qi;
+    cin >> m >> n >> qi;
 
     board = board_t(n, vector<cell>(m));
 
@@ -250,11 +239,17 @@ int main() {
                 if(c.is_island()) {
                     if(c.qnt_adj() == 1) {
                         changed++;
-                        //if(c.val > 2){/*TÁ ERRADOOOOOO*/}                    
-                        //cout << "entrou aqui no " << i << " " << j << endl;
                         cell* to_connect = c.adj_list().back(); 
                         connect_cells(c, *to_connect);
                     }
+                    if(c.val == 6 && c.qnt_adj() == 3) {
+                        changed++;
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+
                     if(c.val == 4 && c.qnt_adj() == 2) {
                         changed++;
                         for(cell* to_connect : c.adj_list()) {
@@ -269,7 +264,30 @@ int main() {
                             connect_cells(c, *to_connect);
                         }
                     }
-                    
+                    if(c.val == 5 && c.qnt_adj() == 3) {
+                        changed++;
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+                    if(c.val == 7 && c.qnt_adj() == 4) {
+                        changed++;
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+                    if(c.val == 3 && c.qnt_adj() == 2) {
+                        changed++;
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+                    /*if(c.val > c.qnt_adj()) {
+                        changed++;
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                        }
+                    }*/
                 }
             }
         }
