@@ -80,11 +80,7 @@ struct cell {
                 this->lft->rgt = nullptr; 
             }
         }
-        if(line == D_HORIZONTAL || line == D_VERTICAL){
-            return true;
-        }else{
-            return false;
-        }
+        return (line == D_HORIZONTAL || line == D_VERTICAL)
     }
 
     vector<cell*> adj_list() {
@@ -167,7 +163,7 @@ void print_cell(cell c) {
 }
 
 void connect_cells(cell &c1, cell &c2) {
-    if(!(are_same_line(c1, c2) || are_same_collum(c1, c2))) {
+    if(!((are_same_line(c1, c2) || are_same_collum(c1, c2)) && c1.is_adjacent(c2) && c2.is_adjacent(c1))) {
         return;
     }
 
@@ -304,7 +300,12 @@ int main() {
                             changed++;
                             for(cell* to_connect : c.adj_list()) {
                                 connect_cells(c, *to_connect);
-                                if(i%2 == 0) {
+                                /*if(i%2 == 0) {
+                                    connect_cells(c, *to_connect);
+                                }*/
+                            }
+                            if(i%2 == 0){
+                                for(cell* to_connect : c.adj_list()) {
                                     connect_cells(c, *to_connect);
                                 }
                             }
