@@ -80,7 +80,7 @@ struct cell {
                 this->lft->rgt = nullptr; 
             }
         }
-        return (line == D_HORIZONTAL || line == D_VERTICAL)
+        return (line == D_HORIZONTAL || line == D_VERTICAL);
     }
 
     vector<cell*> adj_list() {
@@ -93,6 +93,9 @@ struct cell {
         return ans;
     }
 
+    bool check_adj(cell* c){
+        return this->lft == c || this->rgt == c || this->top == c || this->bot == c;
+    }
     string get_cell_val(string dir) {
         if(dir == "lft") {
             if(is_adjacent(this->lft)) return to_string(this->lft->val);
@@ -163,7 +166,7 @@ void print_cell(cell c) {
 }
 
 void connect_cells(cell &c1, cell &c2) {
-    if(!((are_same_line(c1, c2) || are_same_collum(c1, c2)) && c1.is_adjacent(c2) && c2.is_adjacent(c1))) {
+    if(!((are_same_line(c1, c2) || are_same_collum(c1, c2)) && c1.check_adj(&c2) && c2.check_adj(&c1))) {
         return;
     }
 
@@ -282,18 +285,18 @@ int main() {
                 cell &c = board[i][j];
 
                 if(c.is_island()) {
-                    // for(int i = 4; i <= 8; i = i + 2) {
-                    //     int need_adj = i/2;
-                    //     if(c.init_val == i && c.qnt_adj() == need_adj) {
-                    //         changed++;
-                    //         for(cell* to_connect : c.adj_list()) {
-                    //             connect_cells(c, *to_connect);
-                    //         }
-                    //         for(cell* to_connect : c.adj_list()) {
-                    //             connect_cells(c, *to_connect);
-                    //         }
-                    //     }
-                    // }
+                    for(int i = 4; i <= 8; i = i + 2) {
+                        int need_adj = i/2;
+                        if(c.init_val == i && c.qnt_adj() == need_adj) {
+                            changed++;
+                            for(cell* to_connect : c.adj_list()) {
+                                connect_cells(c, *to_connect);
+                            }
+                            for(cell* to_connect : c.adj_list()) {
+                                connect_cells(c, *to_connect);
+                            }
+                        }
+                    }
                     for(int i = 4; i <= 8; i++) {
                         int need_adj = i/2 + i%2;
                         if(c.val == i && c.qnt_adj() == need_adj) {
