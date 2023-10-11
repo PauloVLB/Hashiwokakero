@@ -285,6 +285,17 @@ int main() {
                 cell &c = board[i][j];
 
                 if(c.is_island()) {
+                    bool connect = true;
+                    int adjacent = 0;
+                    for(cell* to_connect : c.adj_list()) {
+                        if(to_connect->val != 1)connect = false;
+                        adjacent++;
+                    }
+                    if(connect && c.val == adjacent){
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                        }
+                    }
                     for(int i = 4; i <= 8; i = i + 2) {
                         int need_adj = i/2;
                         if(c.init_val == i && c.qnt_adj() == need_adj) {
