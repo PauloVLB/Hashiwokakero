@@ -25,6 +25,10 @@ struct coord {
 struct cell {
     cell *lft, *rgt, *top, *bot;
     int init_val, val;
+    int lft_value = 0;
+    int rgt_value = 0;
+    int top_value = 0;
+    int bot_value = 0;
     int line;
     coord cd;
 
@@ -55,9 +59,13 @@ struct cell {
     void decrease_val() {
         val--;
         if(val == 0) {
+            if(this->lft != nullptr)this->lft->lft_value = 0;
             this->lft = nullptr;
+            if(this->rgt != nullptr)this->rgt->rgt_value = 0;
             this->rgt = nullptr;
+            if(this->top != nullptr)this->top->top_value = 0;
             this->top = nullptr;
+            if(this->bot != nullptr)this->bot->bot_value = 0;
             this->bot = nullptr;
             val = -1;
         }
@@ -136,16 +144,16 @@ void print_cell_info(cell c) {
     cout << "{ val: " << c.val << ", ";
 
     cout << "lft: ";
-    cout << c.get_cell_val("lft") << ", ";
+    cout << c.lft_value << ", ";
     
     cout << "rgt: ";
-    cout << c.get_cell_val("rgt") << ", ";
+    cout << c.rgt_value << ", ";
     
     cout << "top: ";
-    cout << c.get_cell_val("top") << ", ";
+    cout << c.top_value << ", ";
     
     cout << "bot: ";
-    cout << c.get_cell_val("bot");
+    cout << c.bot_value;
     cout << " } ";
 }
 
@@ -184,6 +192,8 @@ void connect_cells(cell &c1, cell &c2) {
         for(int j = min_y + 1; j <= max_y - 1; j++) {
             full = board[my_x][j].add_line(HORIZONTAL);
         }
+        if(board[my_x][min_y].rgt_value > 0)board[my_x][min_y].rgt_value--;
+        if(board[my_x][max_y].lft_value > 0)board[my_x][max_y].lft_value--;
         if(full){
             if(c1.cd.y < c2.cd.y){
                 c1.rgt = nullptr;
@@ -200,6 +210,8 @@ void connect_cells(cell &c1, cell &c2) {
         for(int i = min_x + 1; i <= max_x - 1; i++) {
             full = board[i][my_y].add_line(VERTICAL);
         }
+        if(board[min_x][my_y].bot_value > 0)board[min_x][my_y].bot_value--;
+        if(board[max_x][my_y].top_value > 0)board[max_x][my_y].top_value--;
         if(full){
             if(c1.cd.x < c2.cd.x){
                 c1.bot = nullptr;
@@ -276,15 +288,35 @@ int main() {
             }
         }
     }
-
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++){
+            cell &c = board[i][j];
+            if(c.top != nullptr)
+                c.top_value = std::min(c.top->val,2);
+            if(c.bot != nullptr)
+                c.bot_value = std::min(c.bot->val,2);
+            if(c.rgt != nullptr)
+                c.rgt_value = std::min(c.rgt->val,2);
+            if(c.lft != nullptr)
+                c.lft_value = std::min(c.lft->val,2);
+        }
+    }
     int changed = 0;
     do {
         changed = 0;
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < m; j++) {
+                // print_cell_info(board[4][0]);
+                // std::cout << std::endl;
                 cell &c = board[i][j];
 
                 if(c.is_island()) {
+                    if(c.val == c.bot_value+c.lft_value+c.rgt_value+c.top_value){
+                        for(cell* to_connect : c.adj_list()) {
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+                    //Checa se ilha  de grau n restaante tem n adjacencias de grau 1
                     bool connect = true;
                     int adjacent = 0;
                     for(cell* to_connect : c.adj_list()) {
@@ -296,6 +328,10 @@ int main() {
                             connect_cells(c, *to_connect);
                         }
                     }
+                    //---------------------------------------------------------------
+
+                    //checa por conexões óbvias envolvendo ilhas de grau 4, 6 e 8. 
+                    // Ex: se uma ilha tem grau 4 e 2 adjacentes, liga tudo.
                     for(int i = 4; i <= 8; i = i + 2) {
                         int need_adj = i/2;
                         if(c.init_val == i && c.qnt_adj() == need_adj) {
@@ -308,6 +344,7 @@ int main() {
                             }
                         }
                     }
+                    //--------------------------------------------------------------
                     for(int i = 4; i <= 8; i++) {
                         int need_adj = i/2 + i%2;
                         if(c.val == i && c.qnt_adj() == need_adj) {
@@ -345,12 +382,12 @@ int main() {
         }
     } while(changed != 0);
 
-    /*for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            print_cell_info(board[i][j]);
-        }
-        cout << endl;
-    }*/
+    // for(int i = 0; i < n; i++) {
+    //     for(int j = 0; j < m; j++) {
+    //         print_cell_info(board[i][j]);
+    //     }
+    //     cout << endl;
+    // }
     print_edg_list();
     cout << endl;
     print_board();
