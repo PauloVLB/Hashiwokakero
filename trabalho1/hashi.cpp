@@ -59,13 +59,13 @@ struct cell {
     void decrease_val() {
         val--;
         if(val == 0) {
-            if(this->lft != nullptr)this->lft->lft_value = 0;
+            if(this->lft != nullptr)this->lft->rgt_value = 0;
             this->lft = nullptr;
-            if(this->rgt != nullptr)this->rgt->rgt_value = 0;
+            if(this->rgt != nullptr)this->rgt->lft_value = 0;
             this->rgt = nullptr;
-            if(this->top != nullptr)this->top->top_value = 0;
+            if(this->top != nullptr)this->top->bot_value = 0;
             this->top = nullptr;
-            if(this->bot != nullptr)this->bot->bot_value = 0;
+            if(this->bot != nullptr)this->bot->top_value = 0;
             this->bot = nullptr;
             val = -1;
         }
