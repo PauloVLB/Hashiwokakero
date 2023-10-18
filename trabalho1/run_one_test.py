@@ -1,5 +1,5 @@
 import os
-from colorama import Fore, Back, Style
+#from colorama import Fore, Back, Style
 
 tests_folders = ['HashiApp_Puzzles/Intro1/', 
                  'HashiApp_Puzzles/Intro2/',
@@ -39,8 +39,7 @@ for folder in tests_folders:
         os.system(f'./hashi < {input_file} > {output_file}')
         output = os.system(f'./solution_checker < {output_file}')
 
-        print(Fore.BLACK + Back.BLUE + Style.BRIGHT + f'Teste {i} {"-"*21}', end="")
-        print(Style.RESET_ALL)
+        print(f'Teste {i} {"-"*21}')
 
         with open(output_file, 'r') as file:
             file_content = file.read()
@@ -55,17 +54,10 @@ for folder in tests_folders:
 
         print('Status: ', end="")
         if(output == 0):
-            print(Fore.BLACK + Back.GREEN + Style.BRIGHT + 'ACCEPTED', end="")
-            print(Style.RESET_ALL, end="")
-            print()
+            print('ACCEPTED')
             AC = AC + 1
         else:
-            print(Fore.BLACK + Back.RED + Style.BRIGHT + 'WRONG ANSWER', end="")
-            print(Style.RESET_ALL, end="")
-            print()
+            print('WRONG ANSWER')
             WA = WA + 1
         
-        print(Fore.BLACK + Back.BLUE + Style.BRIGHT + "-"*30, end="")
-        print(Style.RESET_ALL)
-print("Aceitas: ", AC)
-print("Erradas: ", WA)
+        print("-"*30)

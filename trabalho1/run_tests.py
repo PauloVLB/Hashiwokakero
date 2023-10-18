@@ -1,18 +1,27 @@
 import os
-from colorama import Fore, Back, Style
+#from colorama import Fore, Back, Style
 
 tests_folders = ['HashiApp_Puzzles/Intro1/', 
-                 'HashiApp_Puzzles/Intro2/']
-                 #'Hashi_Puzzles/100/',
-                 #'Hashi_Puzzles/200/',
-                 #'Hashi_Puzzles/300/',
-                 #'Hashi_Puzzles/400/']
+                 'HashiApp_Puzzles/Intro2/',
+                 'Hashi_Puzzles/100/',
+                 'Hashi_Puzzles/200/',
+                 'Hashi_Puzzles/300/',
+                 'Hashi_Puzzles/400/']
 
 programs = ['hashi', 'solution_checker']
 print("Compilando programas: ")
 for p in programs:
     os.system(f'make {p}')
 print()
+
+print("Escolha o conjunto de testes: ")
+for i in range(1, len(tests_folders)+1):
+    print(f'{i} - {tests_folders[i-1]}')
+
+choice = int(input())
+
+tests_folders = [tests_folders[choice-1]]
+
 AC = 0
 WA = 0
 for folder in tests_folders:
@@ -30,8 +39,9 @@ for folder in tests_folders:
         os.system(f'./hashi < {input_file} > {output_file}')
         output = os.system(f'./solution_checker < {output_file}')
 
-        print(Fore.BLACK + Back.BLUE + Style.BRIGHT + f'Teste {i} {"-"*21}', end="")
-        print(Style.RESET_ALL)
+        print(f'Teste {i} {"-"*21}', end="")
+        #print(Style.RESET_ALL)
+        print()
 
         with open(output_file, 'r') as file:
             file_content = file.read()
@@ -46,17 +56,20 @@ for folder in tests_folders:
 
         print('Status: ', end="")
         if(output == 0):
-            print(Fore.BLACK + Back.GREEN + Style.BRIGHT + 'ACCEPTED', end="")
+            print('ACCEPTED', end="")
+            '''
             print(Style.RESET_ALL, end="")
+            '''
             print()
             AC = AC + 1
         else:
-            print(Fore.BLACK + Back.RED + Style.BRIGHT + 'WRONG ANSWER', end="")
-            print(Style.RESET_ALL, end="")
+            print('WRONG ANSWER', end="")
+            #print(Style.RESET_ALL, end="")
             print()
             WA = WA + 1
         
-        print(Fore.BLACK + Back.BLUE + Style.BRIGHT + "-"*30, end="")
-        print(Style.RESET_ALL)
+        print("-"*30, end="")
+        #print(Style.RESET_ALL)
+        print()
 print("Aceitas: ", AC)
 print("Erradas: ", WA)

@@ -23,7 +23,7 @@ Ao executar
 python3 run_tests.py
 ```
 
-O programa irá rodar todos os testes presentes no repositório, mostrando a solução encontrada pela heurística e escrevendo nos arquivos correspondentes na pasta `out/`.
+O programa irá rodar todos os testes presentes no conjunto de testes escolhido pelo usuário, mostrando a solução encontrada pela heurística e escrevendo nos arquivos correspondentes na pasta `out/`.
 
 Já executando 
 ```
