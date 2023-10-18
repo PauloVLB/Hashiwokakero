@@ -12,8 +12,7 @@ Primeiramente será necessário ter as seguintes dependências instaladas:
 
 - Programa `make` (normalmente já instalado em sistemas Linux);
 - Compilador `g++`;
-- `python3`;
-- Biblioteca `colorama` do python.
+- `python3`.
 
 
 O trabalho possui dois principais bancos de instâncias, localizados nas pastas ```Hashi_Puzzles``` e ```HashiApp_Puzzles```.
