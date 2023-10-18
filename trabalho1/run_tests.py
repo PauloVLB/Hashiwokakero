@@ -1,7 +1,12 @@
 import os
 from colorama import Fore, Back, Style
 
-tests_folders = ['HashiApp_Puzzles/Intro1/', 'HashiApp_Puzzles/Intro2/']
+tests_folders = ['HashiApp_Puzzles/Intro1/', 
+                 'HashiApp_Puzzles/Intro2/']
+                 #'Hashi_Puzzles/100/',
+                 #'Hashi_Puzzles/200/',
+                 #'Hashi_Puzzles/300/',
+                 #'Hashi_Puzzles/400/']
 
 programs = ['hashi', 'solution_checker']
 print("Compilando programas: ")

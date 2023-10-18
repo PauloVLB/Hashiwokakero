@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include "color.h"
 
 #define ii pair<int, int>
 #define fs first

@@ -242,6 +242,10 @@ void print_edg_list() {
 }
 
 int main() {
+
+    chrono::steady_clock::time_point begin = chrono::steady_clock::now(); 
+    // começa a marcar o tempo --------------------------------------------------
+    
     cin >> m >> n >> qi; qi = 0;
     cout << m << " " << n << endl;
 
@@ -306,8 +310,6 @@ int main() {
         changed = 0;
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < m; j++) {
-                // print_cell_info(board[4][0]);
-                // std::cout << std::endl;
                 cell &c = board[i][j];
 
                 if(c.is_island()) {
@@ -351,9 +353,6 @@ int main() {
                             changed++;
                             for(cell* to_connect : c.adj_list()) {
                                 connect_cells(c, *to_connect);
-                                /*if(i%2 == 0) {
-                                    connect_cells(c, *to_connect);
-                                }*/
                             }
                             if(i%2 == 0){
                                 for(cell* to_connect : c.adj_list()) {
@@ -367,28 +366,19 @@ int main() {
                         cell* to_connect = c.adj_list().back(); 
                         connect_cells(c, *to_connect);
                     }
-                    /*if(c.val > c.qnt_adj()) {
-                        changed++;
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                        }
-                    }*/
                 }
-
-                /*cout << "(" << c.cd.x << ", " << c.cd.y << ") = " << c.init_val << " ------------------\n";
-                print_board();
-                cout << "------------------\n";*/
             }
         }
     } while(changed != 0);
 
-    // for(int i = 0; i < n; i++) {
-    //     for(int j = 0; j < m; j++) {
-    //         print_cell_info(board[i][j]);
-    //     }
-    //     cout << endl;
-    // }
+    // termina de marcar o tempo -----------------------------------------------
+    chrono::steady_clock::time_point end = chrono::steady_clock::now();
+
     print_edg_list();
     cout << endl;
+   
+    cout << chrono::duration_cast<chrono::microseconds>(end - begin).count() << endl;
+    cout << endl;
+
     print_board();
 }
