@@ -58,6 +58,14 @@ struct cell {
 
     void decrease_val() {
         val--;
+        // esse bloco comentado resolve os dois niveis introdutorios restantes, porem prejudica outros
+        // if(val == 1){
+        //     if(this->lft != nullptr)this->lft->rgt_value = std::min(1,this->lft->rgt_value);
+        //     if(this->rgt != nullptr)this->rgt->lft_value = std::min(1,this->rgt->lft_value);            
+        //     if(this->top != nullptr)this->top->bot_value = std::min(1,this->top->bot_value);
+        //     if(this->bot != nullptr)this->bot->top_value = std::min(1,this->bot->top_value);
+        // }
+        // else
         if(val == 0) {
             if(this->lft != nullptr)this->lft->rgt_value = 0;
             this->lft = nullptr;
@@ -311,51 +319,92 @@ int main() {
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < m; j++) {
                 cell &c = board[i][j];
+                // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai ser avaliada" << std::endl;
 
                 if(c.is_island()) {
                     if(c.val == c.bot_value+c.lft_value+c.rgt_value+c.top_value){
                         for(cell* to_connect : c.adj_list()) {
+                            changed++;
+                            // std::cout << "Connect 1" << std::endl;
+                            // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai se conectar ";
+                            // if(to_connect == c.top)std::cout << "com a ilha acima dela"<< std::endl;
+                            // if(to_connect == c.bot)std::cout << "com a ilha abaixo dela"<< std::endl;
+                            // if(to_connect == c.rgt)std::cout << "com a ilha a direita dela"<< std::endl;
+                            // if(to_connect == c.lft)std::cout << "com a ilha esquerda dela"<< std::endl;
                             connect_cells(c, *to_connect);
                         }
                     }
+                    //-------------------------------DESNECESSÁRIO--------------------------------
                     //Checa se ilha  de grau n restaante tem n adjacencias de grau 1
-                    bool connect = true;
-                    int adjacent = 0;
-                    for(cell* to_connect : c.adj_list()) {
-                        if(to_connect->val != 1)connect = false;
-                        adjacent++;
-                    }
-                    if(connect && c.val == adjacent){
-                        for(cell* to_connect : c.adj_list()) {
-                            connect_cells(c, *to_connect);
-                        }
-                    }
+                    // bool connect = true;
+                    // int adjacent = 0;
+                    // for(cell* to_connect : c.adj_list()) {
+                    //     if(to_connect->val != 1)connect = false;
+                    //     adjacent++;
+                    // }
+                    // if(connect && c.val == adjacent){
+                    //     for(cell* to_connect : c.adj_list()) {
+                    //         changed++;
+                    //         // std::cout << "Connect 2" << std::endl;
+                    //         // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai se conectar ";
+                    //         // if(to_connect == c.top)std::cout << "com a ilha acima dela"<< std::endl;
+                    //         // if(to_connect == c.bot)std::cout << "com a ilha abaixo dela"<< std::endl;
+                    //         // if(to_connect == c.rgt)std::cout << "com a ilha a direita dela"<< std::endl;
+                    //         // if(to_connect == c.lft)std::cout << "com a ilha esquerda dela"<< std::endl;
+                    //         connect_cells(c, *to_connect);
+                    //     }
+                    // }
                     //---------------------------------------------------------------
 
+                    //-------------------------------DESNECESSÁRIO--------------------------------
                     //checa por conexões óbvias envolvendo ilhas de grau 4, 6 e 8. 
                     // Ex: se uma ilha tem grau 4 e 2 adjacentes, liga tudo.
-                    for(int i = 4; i <= 8; i = i + 2) {
-                        int need_adj = i/2;
-                        if(c.init_val == i && c.qnt_adj() == need_adj) {
-                            changed++;
-                            for(cell* to_connect : c.adj_list()) {
-                                connect_cells(c, *to_connect);
-                            }
-                            for(cell* to_connect : c.adj_list()) {
-                                connect_cells(c, *to_connect);
-                            }
-                        }
-                    }
+                    // for(int k = 4; k <= 8; k = k + 2) {
+                    //     int need_adj = k/2;
+                    //     if(c.init_val == k && c.qnt_adj() == need_adj) {
+                    //         changed++;
+                    //         for(cell* to_connect : c.adj_list()) {
+                    //             // std::cout << "Connect 3" << std::endl;
+                    //             // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai se conectar ";
+                    //             // if(to_connect == c.top)std::cout << "com a ilha acima dela"<< std::endl;
+                    //             // if(to_connect == c.bot)std::cout << "com a ilha abaixo dela"<< std::endl;
+                    //             // if(to_connect == c.rgt)std::cout << "com a ilha a direita dela"<< std::endl;
+                    //             // if(to_connect == c.lft)std::cout << "com a ilha esquerda dela"<< std::endl;
+                    //             connect_cells(c, *to_connect);
+                    //         }
+                    //         for(cell* to_connect : c.adj_list()) {
+                    //             // std::cout << "Connect 4" << std::endl;
+                    //             // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai se conectar ";
+                    //             // if(to_connect == c.top)std::cout << "com a ilha acima dela"<< std::endl;
+                    //             // if(to_connect == c.bot)std::cout << "com a ilha abaixo dela"<< std::endl;
+                    //             // if(to_connect == c.rgt)std::cout << "com a ilha a direita dela"<< std::endl;
+                    //             // if(to_connect == c.lft)std::cout << "com a ilha esquerda dela"<< std::endl;
+                    //             connect_cells(c, *to_connect);
+                    //         }
+                    //     }
+                    // }
                     //--------------------------------------------------------------
-                    for(int i = 4; i <= 8; i++) {
-                        int need_adj = i/2 + i%2;
-                        if(c.val == i && c.qnt_adj() == need_adj) {
+                    for(int k = 4; k <= 8; k++) {
+                        int need_adj = k/2 + k%2;
+                        if(c.val == k && c.qnt_adj() == need_adj) {
                             changed++;
                             for(cell* to_connect : c.adj_list()) {
+                                // std::cout << "Connect 5" << std::endl;
+                                // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai se conectar ";
+                                // if(to_connect == c.top)std::cout << "com a ilha acima dela"<< std::endl;
+                                // if(to_connect == c.bot)std::cout << "com a ilha abaixo dela"<< std::endl;
+                                // if(to_connect == c.rgt)std::cout << "com a ilha a direita dela"<< std::endl;
+                                // if(to_connect == c.lft)std::cout << "com a ilha esquerda dela"<< std::endl;
                                 connect_cells(c, *to_connect);
                             }
-                            if(i%2 == 0){
+                            if(k%2 == 0){
                                 for(cell* to_connect : c.adj_list()) {
+                                    // std::cout << "Connect 6" << std::endl;
+                                    // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai se conectar ";
+                                    // if(to_connect == c.top)std::cout << "com a ilha acima dela"<< std::endl;
+                                    // if(to_connect == c.bot)std::cout << "com a ilha abaixo dela"<< std::endl;
+                                    // if(to_connect == c.rgt)std::cout << "com a ilha a direita dela"<< std::endl;
+                                    // if(to_connect == c.lft)std::cout << "com a ilha esquerda dela"<< std::endl;
                                     connect_cells(c, *to_connect);
                                 }
                             }
@@ -364,6 +413,12 @@ int main() {
                     if(c.qnt_adj() == 1) {
                         changed++;
                         cell* to_connect = c.adj_list().back(); 
+                        // std::cout << "Connect 7" << std::endl;
+                        // std::cout << "A ilha de valor " << c.init_val << " que está em (" << i << "," << j <<") vai se conectar ";
+                        // if(to_connect == c.top)std::cout << "com a ilha acima dela"<< std::endl;
+                        // if(to_connect == c.bot)std::cout << "com a ilha abaixo dela"<< std::endl;
+                        // if(to_connect == c.rgt)std::cout << "com a ilha a direita dela"<< std::endl;
+                        // if(to_connect == c.lft)std::cout << "com a ilha esquerda dela"<< std::endl;
                         connect_cells(c, *to_connect);
                     }
                 }
