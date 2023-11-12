@@ -337,13 +337,15 @@ bool is_solution(vector<vector<int>> &x) {
 bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<int, int>>& cellsToTest, int index) {
     if (index == cellsToTest.size()) {
         // Todas as células foram testadas com sucesso
+        /*for(int i = 0; i < qi; i++) {
+            for(int j = 0; j < qi; j++) {
+                cout << x[i][j] << ' ';
+            }
+            cout << endl;
+        }
+        cout << "-----------------" << endl;*/
         if(is_solution(x)) {
-            /*for(int i = 0; i < qi; i++) {
-                for(int j = 0; j < qi; j++) {
-                    cout << x[i][j] << ' ';
-                }
-                cout << endl;
-            }*/
+            //cout << "ASASBKDJASDKASDD" << endl;
             return true;
         } 
         return false;
@@ -352,7 +354,7 @@ bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<
     int row = cellsToTest[index].first;
     int col = cellsToTest[index].second;
 
-    for (int value = 0; value <= 2; ++value) {
+    for (int value = x[row][col]; value <= 2; ++value) {
         // Atribuir valor à célula
         x[row][col] = value;
 
@@ -362,8 +364,7 @@ bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<
         }
 
         // Desfazer a atribuição se a solução não for encontrada
-        x[row][col] = 0; // Reverta para o estado original
-        
+        x[row][col] = init_x[row][col]; // Reverta para o estado original
     }
 
     // Se nenhum valor funcionar para a célula atual, retorne falso
