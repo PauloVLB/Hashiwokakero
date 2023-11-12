@@ -317,19 +317,16 @@ bool is_solution(vector<vector<int>> &x) {
     return check_degree(x) && check_cross(x) && check_connect(x);
 }
 
-void backtracking(vector<vector<int>> &x, int n, int row, int col) {
+void backtracking(vector<vector<int>>& x, int n, int row, int col) {
     if (row == n) {
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    cout << x[i][j] << ' ';
-                }
-                cout << endl;
+        // All cells have been visited, print or process the matrix as needed
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                cout << x[i][j] << ' ';
             }
-            if(is_solution(x)) {
-                cout << "----------ASNDBIVAJSGDNGASHJDKL------" << endl;
-            } else {
-                cout << "----------------" << endl;
-            }
+            cout << endl;
+        }
+        cout << "----------------" << endl;
         return;
     }
 
@@ -339,10 +336,18 @@ void backtracking(vector<vector<int>> &x, int n, int row, int col) {
         return;
     }
 
-    // Try each possible value for the current cell (0, 1, and 2)
-    for (int value = 0; value <= 2; value++) {
-        x[row][col] = value;
+    // Check if the current cell is already set
+    if (x[row][col] != -1) {
+        // If already set, move to the next column
         backtracking(x, n, row, col + 1);
+    } else {
+        // Try each possible value for the current cell (0, 1, and 2)
+        for (int value = 0; value <= 2; value++) {
+            x[row][col] = value;
+            backtracking(x, n, row, col + 1);
+            // Backtrack: reset the value for the next iteration
+            x[row][col] = -1;
+        }
     }
 }
 
@@ -408,10 +413,13 @@ int main() {
             cell &c = board[i][j];
 
             if(c.is_island()) {
+                cout << "vizinhos de " << c.id << ": ";
                 for(cell* ad : c.adj_list()) {
+                    cout << ad->id << " ";
                     adj[c.id].push_back(ad->id);
                     adj[ad->id].push_back(c.id);
                 }
+                cout << endl;
                 d[c.id] = c.init_val;
             } else {
                 if(c.qnt_adj() == 4) {
@@ -429,7 +437,7 @@ int main() {
     }
 
     vector<vector<int>> x(qi, vector<int>(qi, 0));
-    backtracking(x, qi, 0, 0);
+    //backtracking(x, qi, 0, 0);
 
     salve
 
