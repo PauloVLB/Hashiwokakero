@@ -384,7 +384,7 @@ int main() {
                     //     }
                     // }
                     //--------------------------------------------------------------
-                    for(int k = 4; k <= 8; k++) {
+                    for(int k = 3; k <= 8; k++) {
                         int need_adj = k/2 + k%2;
                         if(c.val == k && c.qnt_adj() == need_adj) {
                             changed++;

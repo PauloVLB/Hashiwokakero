@@ -141,6 +141,7 @@ int n, m, qi;
 board_t board, init_board;
 map<cell, vector<cell>> adj_list;
 vector<pair<cell, cell>> edg_list;
+map<pair<ii, ii>, bool> cross;
 
 bool are_same_line(cell c1, cell c2) {
     return c1.cd.x == c2.cd.x;
@@ -328,10 +329,30 @@ void make_adj_list(vector<vector<int>> &x) {
     }
 }
 
+bool no_cross(vector<vector<int>> &x){
+    for(int i = 0; i < qi; ++i){
+        for(int j = i+1; j < qi;++j){
+            if(!are_same_line(*loc[i], *loc[j]) && !are_same_collum(*loc[i],*loc[j])){
+                for(int adj_i : adj_x[i]){
+                    for(int adj_j : adj_x[j]){
+                        int a = i;
+                        int b = adj_i;
+                        int c = j;
+                        int d = adj_j;
+                        if(a > b)swap(a,b);
+                        if(c > d)swap(c,d);
+                        if(cross[{{a,b},{c,d}}]) return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
 bool is_solution(vector<vector<int>> &x) {
     make_adj_list(x); // a partir de X, cria uma lista de adjacencia
 
-    return check_edges(x) && check_degree(x) && check_connect(x);
+    return check_edges(x) && check_degree(x) && check_connect(x) && no_cross(x);
 }
 
 bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<int, int>>& cellsToTest, int index) {
@@ -455,7 +476,18 @@ int main() {
                     adj[ad->id].insert(c.id);
                 }
                 d[c.id] = c.init_val;
-            } 
+            } else {
+                if(c.qnt_adj() == 4) {
+                    int ci = c.top->id;
+                    int cj = c.bot->id;
+                    int ck = c.lft->id;
+                    int cl = c.rgt->id;
+                    if(ci > cj) swap(ci, cj);
+                    if(ck > cl) swap(ck, cl);
+                    cross[{{ci, cj}, {ck, cl}}] = 1;
+                    cross[{{ck, cl}, {ci, cj}}] = 1;
+                }
+            }
         }
     }
 
@@ -472,7 +504,7 @@ int main() {
                             connect_cells(c, *to_connect);
                         }
                     }
-                    for(int k = 4; k <= 8; k++) {
+                    for(int k = 3; k <= 8; k++) {
                         int need_adj = k/2 + k%2;
                         if(c.val == k && c.qnt_adj() == need_adj) {
                             changed++;
