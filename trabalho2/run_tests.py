@@ -7,6 +7,12 @@ tests_folders = ['HashiApp_Puzzles/Intro1/',
                  'Hashi_Puzzles/200/',
                  'Hashi_Puzzles/300/',
                  'Hashi_Puzzles/400/']
+pasta_raiz = '../TestCases/'
+
+tests_folders = []
+for pasta_atual, subpastas, arquivos in sorted(os.walk(pasta_raiz)):
+    if(pasta_atual.count('/') == 3):
+        tests_folders.append(pasta_atual.replace(pasta_raiz, "") + "/")
 
 programs = ['exato2', 'solution_checker']
 print("Compilando programas: ")
@@ -25,11 +31,11 @@ tests_folders = [tests_folders[choice-1]]
 AC = 0
 WA = 0
 for folder in tests_folders:
-    qnt_tests = len(os.listdir(folder))
+    qnt_tests = len(os.listdir(pasta_raiz + folder))
     
     print(f'BATERIA DE TESTES: {os.path.dirname(folder)}')
     for i in range(1, qnt_tests+1):
-        input_file = f'{folder}level{i}.txt'
+        input_file = f'{pasta_raiz + folder}level{i}.txt'
         output_file = f'out/{folder}out{i}.txt'
         
         output_directory = os.path.dirname(output_file)

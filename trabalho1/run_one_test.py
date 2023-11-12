@@ -1,12 +1,21 @@
 import os
 #from colorama import Fore, Back, Style
 
-tests_folders = ['HashiApp_Puzzles/Intro1/', 
-                 'HashiApp_Puzzles/Intro2/',
-                 'Hashi_Puzzles/100/',
-                 'Hashi_Puzzles/200/',
-                 'Hashi_Puzzles/300/',
-                 'Hashi_Puzzles/400/']
+#tests_folders = ['HashiApp_Puzzles/Intro1/', 
+#                 'HashiApp_Puzzles/Intro2/', 
+#                 'HashiApp_Puzzles/Easy/',
+#                 'Hashi_Puzzles/100/',
+#                 'Hashi_Puzzles/200/',
+#                 'Hashi_Puzzles/300/',
+#                 'Hashi_Puzzles/400/']
+
+pasta_raiz = '../TestCases/'
+
+tests_folders = []
+for pasta_atual, subpastas, arquivos in sorted(os.walk(pasta_raiz)):
+    if(pasta_atual.count('/') == 3):
+        tests_folders.append(pasta_atual.replace(pasta_raiz, "") + "/")
+        #print(f'Pasta Atual: {pasta_atual.replace(pasta_raiz, "")}')
 
 programs = ['hashi', 'solution_checker']
 print("Compilando programas: ")
@@ -23,13 +32,13 @@ for i in range(1, len(tests_folders)+1):
 choice = int(input())
 tests_folders = [tests_folders[choice-1]]
 
-print(f'Escolher o teste (entre {1} e {len(os.listdir(tests_folders[0]))}): ')
+print(f'Escolher o teste (entre {1} e {len(os.listdir(pasta_raiz + tests_folders[0]))}): ')
 choice = int(input())
 
 for folder in tests_folders:
     print(f'TESTE: {os.path.dirname(folder)}')
     for i in range(choice, choice+1):
-        input_file = f'{folder}level{i}.txt'
+        input_file = f'../TestCases/{folder}level{i}.txt'
         output_file = f'out/{folder}out{i}.txt'
         
         output_directory = os.path.dirname(output_file)
