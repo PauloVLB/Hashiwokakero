@@ -358,7 +358,19 @@ bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<
     if (index == cellsToTest.size()) {
         // Todas as células foram testadas com sucesso
         if(is_solution(x)) {
-            //cout << "ASASBKDJASDKASDD" << endl;
+            /*for(int i = 0; i < qi; i++) {
+                for(int j = 0; j < qi; j++) {
+                    cout << x[i][j] << " ";
+                }
+                cout << endl;
+            }
+            for(int i = 0; i < qi; i++) {
+                cout << "(" << i << ", " << loc[i]->init_val << "): ";
+                for(int v : adj_x[i]) {
+                    cout << "(" << v << ", " << loc[v]->init_val << "), ";
+                }
+                cout << endl;
+            }*/
             return true;
         } 
         return false;
@@ -388,7 +400,6 @@ bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<
 // ------------------------------------------------------------------------
 
 int main() {
-
     chrono::steady_clock::time_point begin = chrono::steady_clock::now(); 
     // começa a marcar o tempo --------------------------------------------------
     
@@ -562,7 +573,7 @@ int main() {
         if(backtracking(x, cellsToTest, 0)) {
             for(int i = 0; i < qi; i++) {
                 for(int j = i + 1; j < qi; j++) {
-                    for(int k = 0; k < x[i][j]; k++) {
+                    for(int k = 0; k < x[i][j] - init_x[i][j]; k++) {
                         connect_cells(*loc[i], *loc[j]);
                     }
                 }
