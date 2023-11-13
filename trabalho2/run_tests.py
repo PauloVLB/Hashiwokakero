@@ -71,7 +71,7 @@ for folder in tests_folders:
         
         #os.system(f'./exato2 < {input_file} > {output_file}')
         command = ['./exato2']
-        timeout = 1800
+        timeout = 2
         result = run_command(command, input_file, output_file, timeout)
 
         print(f'Teste {i} {"-"*21}', end="")
