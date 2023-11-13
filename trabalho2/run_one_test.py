@@ -1,5 +1,32 @@
 import os
+import subprocess
+import signal
+import time
 #from colorama import Fore, Back, Style
+
+def run_command(command, input_file, output_file, timeout):
+    try:
+        with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+            # Inicia o processo
+            process = subprocess.Popen(command, stdin=infile, stdout=outfile, preexec_fn=os.setsid)
+
+            # Aguarda até que o processo termine ou o tempo limite seja atingido
+            start_time = time.time()
+            while time.time() - start_time < timeout and process.poll() is None:
+                time.sleep(0.1)
+
+            # Se o processo ainda estiver em execução, envie um sinal para interrompê-lo
+            if process.poll() is None:
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                process.wait()
+                return False  # Indica que houve timeout
+            else:
+                return True  # Indica que o processo terminou dentro do tempo limite
+
+    except Exception as e:
+        print(f"Erro: {e}")
+        return False  # Indica que ocorreu um erro
+
 
 #tests_folders = ['HashiApp_Puzzles/Intro1/', 
 #                 'HashiApp_Puzzles/Intro2/', 
@@ -45,7 +72,16 @@ for folder in tests_folders:
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
         
-        os.system(f'./exato2 < {input_file} > {output_file}')
+
+        #os.system(f'./exato2 < {input_file} > {output_file}')
+        command = ['./exato2']
+        timeout = 1800
+        result = run_command(command, input_file, output_file, timeout)
+        
+        if not result:
+            print("TLE")
+            exit()
+
         output = os.system(f'./solution_checker < {output_file}')
 
         print(f'Teste {i} {"-"*21}')

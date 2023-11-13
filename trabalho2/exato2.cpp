@@ -259,7 +259,7 @@ vector<set<int>> adj;
 vector<int> d, vis;
 map<int, cell*> loc;
 
-bool check_degree(vector<vector<int>> &x) {
+bool check_degree() {
     for(int k = 0; k < qi; k++) {
         if(adj_x[k].size() != d[k]) {
             //cout << "falhou no grau " << k << " " << adj_x[k].size() << " "  << d[k] << endl;
@@ -269,7 +269,7 @@ bool check_degree(vector<vector<int>> &x) {
     return true;
 }
 
-bool check_edges(vector<vector<int>> &x) {
+bool check_edges() {
     for(int u = 0; u < qi; u++) {
         for(int v : adj_x[u]) {
             if(!are_same_line(*loc[u], *loc[v]) && !are_same_collum(*loc[u], *loc[v])) {
@@ -306,8 +306,7 @@ int qnt_components() {
     return ans;
 }
 
-
-bool check_connect(vector<vector<int>> &x) {
+bool check_connect() {
     if(qnt_components() == 1) {
         return true;
     } else {
@@ -329,7 +328,7 @@ void make_adj_list(vector<vector<int>> &x) {
     }
 }
 
-bool no_cross(vector<vector<int>> &x){
+bool no_cross(){
     for(int i = 0; i < qi; ++i){
         for(int j = i+1; j < qi;++j){
             if(!are_same_line(*loc[i], *loc[j]) && !are_same_collum(*loc[i],*loc[j])){
@@ -352,19 +351,12 @@ bool no_cross(vector<vector<int>> &x){
 bool is_solution(vector<vector<int>> &x) {
     make_adj_list(x); // a partir de X, cria uma lista de adjacencia
 
-    return check_edges(x) && check_degree(x) && check_connect(x) && no_cross(x);
+    return check_edges() && check_degree() && check_connect() && no_cross();
 }
 
 bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<int, int>>& cellsToTest, int index) {
     if (index == cellsToTest.size()) {
         // Todas as células foram testadas com sucesso
-        /*for(int i = 0; i < qi; i++) {
-            for(int j = 0; j < qi; j++) {
-                cout << x[i][j] << ' ';
-            }
-            cout << endl;
-        }
-        cout << "-----------------" << endl;*/
         if(is_solution(x)) {
             //cout << "ASASBKDJASDKASDD" << endl;
             return true;
@@ -386,6 +378,7 @@ bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<
 
         // Desfazer a atribuição se a solução não for encontrada
         x[row][col] = init_x[row][col]; // Reverta para o estado original
+        
     }
 
     // Se nenhum valor funcionar para a célula atual, retorne falso
@@ -551,7 +544,9 @@ int main() {
                     int v = ad->id;
 
                     if(u < v) {
-                        cellsToTest.push_back({u, v});
+                        if(c.init_val != 1 || ad->init_val != 1) {
+                            cellsToTest.push_back({u, v});
+                        }
                     }
                 }
             }
@@ -564,16 +559,16 @@ int main() {
     }*/
     //cout << is_solution(x) << endl;
     if(!is_solution(x)) {
-        backtracking(x, cellsToTest, 0);
-        for(int i = 0; i < qi; i++) {
-            for(int j = i + 1; j < qi; j++) {
-                for(int k = 0; k < x[i][j]; k++) {
-                    connect_cells(*loc[i], *loc[j]);
+        if(backtracking(x, cellsToTest, 0)) {
+            for(int i = 0; i < qi; i++) {
+                for(int j = i + 1; j < qi; j++) {
+                    for(int k = 0; k < x[i][j]; k++) {
+                        connect_cells(*loc[i], *loc[j]);
+                    }
                 }
             }
         }
     }
-
 
     // termina de marcar o tempo -----------------------------------------------
     chrono::steady_clock::time_point end = chrono::steady_clock::now();

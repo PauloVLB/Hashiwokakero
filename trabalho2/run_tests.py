@@ -1,5 +1,31 @@
 import os
+import subprocess
+import time
+import signal
 #from colorama import Fore, Back, Style
+
+def run_command(command, input_file, output_file, timeout):
+    try:
+        with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+            # Inicia o processo
+            process = subprocess.Popen(command, stdin=infile, stdout=outfile, preexec_fn=os.setsid)
+
+            # Aguarda até que o processo termine ou o tempo limite seja atingido
+            start_time = time.time()
+            while time.time() - start_time < timeout and process.poll() is None:
+                time.sleep(0.1)
+
+            # Se o processo ainda estiver em execução, envie um sinal para interrompê-lo
+            if process.poll() is None:
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                process.wait()
+                return False  # Indica que houve timeout
+            else:
+                return True  # Indica que o processo terminou dentro do tempo limite
+
+    except Exception as e:
+        print(f"Erro: {e}")
+        return False  # Indica que ocorreu um erro
 
 tests_folders = ['HashiApp_Puzzles/Intro1/', 
                  'HashiApp_Puzzles/Intro2/',
@@ -30,6 +56,7 @@ tests_folders = [tests_folders[choice-1]]
 
 AC = 0
 WA = 0
+TLE = 0
 for folder in tests_folders:
     qnt_tests = len(os.listdir(pasta_raiz + folder))
     
@@ -42,26 +69,33 @@ for folder in tests_folders:
         if not os.path.exists(output_directory):
             os.makedirs(output_directory)
         
-        os.system(f'./exato2 < {input_file} > {output_file}')
-        output = os.system(f'./solution_checker < {output_file}')
+        #os.system(f'./exato2 < {input_file} > {output_file}')
+        command = ['./exato2']
+        timeout = 1800
+        result = run_command(command, input_file, output_file, timeout)
 
         print(f'Teste {i} {"-"*21}', end="")
         #print(Style.RESET_ALL)
         print()
 
-        with open(output_file, 'r') as file:
-            file_content = file.read()
-            blocks = file_content.strip().split('\n\n')
+        if result:                                             
+            output = os.system(f'./solution_checker < {output_file}')
+            with open(output_file, 'r') as file:
+                file_content = file.read()
+                blocks = file_content.strip().split('\n\n')
 
-            if len(blocks) > 0:
-                last_block = blocks[-1]
-                print(last_block)
-            else:
-                print("No board found in the file.")
-
+                if len(blocks) > 0:
+                    last_block = blocks[-1]
+                    print(last_block)
+                else:
+                    print("No board found in the file.")
+        else:
+            TLE += 1
 
         print('Status: ', end="")
-        if(output == 0):
+        if(not result):
+            print("TIME LIMIT EXCEDEED")
+        elif(output == 0):
             print('ACCEPTED', end="")
             '''
             print(Style.RESET_ALL, end="")
@@ -79,3 +113,4 @@ for folder in tests_folders:
         print()
 print("Aceitas: ", AC)
 print("Erradas: ", WA)
+print("Tempo Limite Excedido: ", TLE)
