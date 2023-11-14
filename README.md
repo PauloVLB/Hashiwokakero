@@ -4,7 +4,8 @@ Desenvolvimento de heurísticas, algoritmos exatos e meta-heurísticas para o pr
 ## Como usar:
 
 Para executar o trabalho 1, sobre heurísticas, execute os passo abaixo dentro da pasta ```trabalho1```. 
-Para executar o trabalho 1, sobre algoritmos exatos, execute os passo abaixo dentro da pasta ```trabalho2```. 
+
+Para executar o trabalho 2, sobre algoritmos exatos, execute os passo abaixo dentro da pasta ```trabalho2```. 
 
 Primeiramente será necessário ter as seguintes dependências instaladas:
 
