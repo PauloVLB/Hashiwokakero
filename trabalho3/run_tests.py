@@ -40,7 +40,7 @@ for pasta_atual, subpastas, arquivos in sorted(os.walk(pasta_raiz)):
     if(pasta_atual.count('/') == 3):
         tests_folders.append(pasta_atual.replace(pasta_raiz, "") + "/")
 
-programs = ['exato2', 'solution_checker']
+programs = ['ants', 'solution_checker']
 print("Compilando programas: ")
 for p in programs:
     os.system(f'make {p}')
@@ -70,7 +70,7 @@ for folder in tests_folders:
             os.makedirs(output_directory)
         
         #os.system(f'./exato2 < {input_file} > {output_file}')
-        command = ['./exato2']
+        command = ['./ants']
         timeout = 4
         result = run_command(command, input_file, output_file, timeout)
 

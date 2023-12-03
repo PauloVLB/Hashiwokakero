@@ -11,6 +11,13 @@
 #define VERTICAL 3 // vertical line
 #define D_VERTICAL 4 // double vertical line
 
+#define MAX_IT 50
+#define N_ANTS 10
+#define RO 0.3
+#define ALPHA 1
+#define BETA 1
+#define Q 5
+
 using namespace std;
 
 struct coord {
@@ -252,21 +259,23 @@ void print_edg_list() {
     }
 }
 
-// exato ------------------------------------------------------------------
+// formiga ------------------------------------------------------------------
 
-vector<vector<int>> x, init_x, adj_x;
+vector<vector<int>> x, init_x, adj_x, heuristic;
+vector<vector<double>> phero;
+
 vector<set<int>> adj;
 vector<int> d, vis;
 map<int, cell*> loc;
 
-bool check_degree() {
+int check_degree() {
+    int n_satur = 0;
     for(int k = 0; k < qi; k++) {
         if(adj_x[k].size() != d[k]) {
-            //cout << "falhou no grau " << k << " " << adj_x[k].size() << " "  << d[k] << endl;
-            return false;
+            n_satur++;
         }
     }
-    return true;
+    return n_satur;
 }
 
 bool check_edges() {
@@ -328,7 +337,8 @@ void make_adj_list(vector<vector<int>> &x) {
     }
 }
 
-bool no_cross(){
+int no_cross(){
+    int n_crosses = 0;
     for(int i = 0; i < qi; ++i){
         for(int j = i+1; j < qi;++j){
             if(!are_same_line(*loc[i], *loc[j]) && !are_same_collum(*loc[i],*loc[j])){
@@ -340,13 +350,13 @@ bool no_cross(){
                         int d = adj_j;
                         if(a > b)swap(a,b);
                         if(c > d)swap(c,d);
-                        if(cross[{{a,b},{c,d}}]) return false;
+                        if(cross[{{a,b},{c,d}}]) n_crosses++;
                     }
                 }
             }
         }
     }
-    return true;
+    return n_crosses;
 }
 bool is_solution(vector<vector<int>> &x) {
     make_adj_list(x); // a partir de X, cria uma lista de adjacencia
@@ -354,46 +364,102 @@ bool is_solution(vector<vector<int>> &x) {
     return check_edges() && check_degree() && check_connect() && no_cross();
 }
 
-bool backtracking(std::vector<std::vector<int>>& x, const std::vector<std::pair<int, int>>& cellsToTest, int index) {
-    if (index == cellsToTest.size()) {
-        // Todas as células foram testadas com sucesso
-        if(is_solution(x)) {
-            /*for(int i = 0; i < qi; i++) {
-                for(int j = 0; j < qi; j++) {
-                    cout << x[i][j] << " ";
-                }
-                cout << endl;
-            }
-            for(int i = 0; i < qi; i++) {
-                cout << "(" << i << ", " << loc[i]->init_val << "): ";
-                for(int v : adj_x[i]) {
-                    cout << "(" << v << ", " << loc[v]->init_val << "), ";
-                }
-                cout << endl;
-            }*/
-            return true;
-        } 
-        return false;
+vector<vector<int>> build_solution(int ant, vector<vector<int>> &x, 
+                                   const vector<pair<int, int>> &cellsToTestConst) {
+    vector<vector<int>> sol = x;
+
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    vector<pair<int, int>> cellsToTest = cellsToTestConst;
+    shuffle(cellsToTest.begin(), cellsToTest.end(), g);
+
+    for(auto [i, j] : cellsToTest) {
+        double num = phero[i][j] * heuristic[i][j];
+        num = ALPHA == 0 ? num/phero[i][j] : num;
+        num = BETA == 0 ? num/heuristic[i][j] : num;
+
+        double prob = num/(3 - sol[i][j]);
+        cout << "prob " << prob << endl;
+        
+        int qnt_pontes = round(prob * (2 - sol[i][j]));
+        sol[i][j] += qnt_pontes;
     }
 
-    int row = cellsToTest[index].first;
-    int col = cellsToTest[index].second;
+    return sol;
+}
 
-    for (int value = x[row][col]; value <= 2; ++value) {
-        // Atribuir valor à célula
-        x[row][col] = value;
+int cost(vector<vector<int>> &sol) {
+    make_adj_list(sol);
 
-        // Recursão para a próxima célula
-        if (backtracking(x, cellsToTest, index + 1)) {
-            return true; // Se a solução for encontrada, retorne verdadeiro
+    int n_crosses = no_cross();
+    int n_satur = check_degree();
+    int n_components = qnt_components() - 1;
+
+    return n_crosses + n_satur + n_components;
+}
+
+void update_pheromone(vector<vector<int>> &x,
+                      vector<vector<int>> &sol_k,
+                      int cost_k             
+) {
+    for(int i = 0; i < qi; i++) {
+        for(int j = i + 1; j < qi; j++) {
+            if(x[i][j] != sol_k[i][j]) {
+                cout << "mudou a celula " << i << " " << j << endl;
+                cout << "de " << x[i][j] << " para " << sol_k[i][j] << endl; 
+                phero[i][j] += Q/cost_k;
+            }
+        }
+    }
+}
+
+void init_info_values(const vector<pair<int, int>> &cellsToTest) {
+    heuristic = vector<vector<int>>(qi, vector<int>(qi, 0));
+    phero = vector<vector<double>>(qi, vector<double>(qi, 1));
+    for(auto [i, j] : cellsToTest) {
+        heuristic[i][j] = min(loc[i]->val, loc[j]->val);
+    }
+}
+
+bool aco(vector<vector<int>> &x, const vector<pair<int, int>>& cellsToTest) {
+    init_info_values(cellsToTest); // inicializa valores heuristicos e feromonios
+    
+    vector<vector<int>> sol_ant[N_ANTS];
+    vector<int> cost_sol(N_ANTS);
+    vector<vector<int>> melhor;
+
+    for(int it = 0; it < MAX_IT; it++) {
+        int best_solution = INT_MAX;
+
+        for(int k = 0; k < N_ANTS; k++) {
+            sol_ant[k] = build_solution(k, x, cellsToTest);
+            cost_sol[k] = cost(sol_ant[k]);
+
+            cout << "custo da solução: " << cost_sol[k] << endl;
+            if(cost_sol[k] == 0) {
+                x = sol_ant[k];
+                return true;
+            }
+            if(cost_sol[k] < best_solution) {
+                best_solution = cost_sol[k];
+                melhor = sol_ant[k];
+            }
         }
 
-        // Desfazer a atribuição se a solução não for encontrada
-        x[row][col] = init_x[row][col]; // Reverta para o estado original
-        
+        for(auto [i, j] : cellsToTest) { // evaporação do feromonio
+            phero[i][j] = phero[i][j] * (1 - RO);
+        }
+
+        for(int k = 0; k < N_ANTS; k++) {
+            if(cost_sol[k] == best_solution) {
+                update_pheromone(x, sol_ant[k], cost_sol[k]);
+            }
+
+        }
     }
 
-    // Se nenhum valor funcionar para a célula atual, retorne falso
+    x = melhor;
     return false;
 }
 
@@ -564,23 +630,19 @@ int main() {
         }
     }
 
-    /*cout << "preciso testar: " << endl;
-    for(auto x : cellsToTest) {
-        cout << x.fs << " " << x.sc << endl;
-    }*/
-    //cout << is_solution(x) << endl;
 
-    if(!is_solution(x)) {
-        if(backtracking(x, cellsToTest, 0)) {
-            for(int i = 0; i < qi; i++) {
-                for(int j = i + 1; j < qi; j++) {
-                    for(int k = 0; k < x[i][j] - init_x[i][j]; k++) {
-                        connect_cells(*loc[i], *loc[j]);
-                    }
+    //if(aco(x, cellsToTest)) {
+        aco(x, cellsToTest);
+        cout << "aslkdmasd " << x[2][3] << endl;
+        cout << "aslkdmasd " << x[2][6] << endl;
+        for(int i = 0; i < qi; i++) {
+            for(int j = i + 1; j < qi; j++) {
+                for(int k = 0; k < x[i][j] - init_x[i][j]; k++) {
+                    connect_cells(*loc[i], *loc[j]);
                 }
             }
         }
-    }
+    //}
 
     // termina de marcar o tempo -----------------------------------------------
     chrono::steady_clock::time_point end = chrono::steady_clock::now();

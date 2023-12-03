@@ -12,10 +12,13 @@ def processar_arquivo(nome_arquivo):
     linha_ilhas = linhas[int(n)+1].split()
     qnt_ilhas = linha_ilhas[0]
     qnt_arestas = linha_ilhas[1]
-
-    linha_tempo = linhas[int(n) + int(qnt_arestas) + 3].split()
-    tempo = linha_tempo[0]
-
+    
+    try:
+        linha_tempo = linhas[int(n) + int(qnt_arestas) + 3].split()
+        tempo = linha_tempo[0]
+    except:
+        tempo = -1
+        
     return n, m, qnt_ilhas, tempo
 
 
@@ -36,5 +39,8 @@ for folder in tests_folders:
         caminho_completo = f'out/{folder}out{i}.txt'
         n, m, qnt_ilhas, tempo = processar_arquivo(caminho_completo)
 
-        print(f'{n}x{m} & {qnt_ilhas} & {tempo} & Resposta Incorreta \\\\')
+        if tempo == -1:
+            print(f'{n}x{m} & {qnt_ilhas} & --- & Tempo Excedido \\\\')
+        else:
+            print(f'{n}x{m} & {qnt_ilhas} & {tempo} & Resposta Correta \\\\')
     print()
