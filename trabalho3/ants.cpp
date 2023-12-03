@@ -262,7 +262,7 @@ void print_edg_list() {
 // formiga ------------------------------------------------------------------
 
 vector<vector<int>> x, init_x, adj_x, heuristic;
-vector<vector<double>> phero;
+vector<vector<double>> phero[3];
 
 vector<set<int>> adj;
 vector<int> d, vis;
@@ -375,15 +375,30 @@ vector<vector<int>> build_solution(int ant, vector<vector<int>> &x,
     shuffle(cellsToTest.begin(), cellsToTest.end(), g);
 
     for(auto [i, j] : cellsToTest) {
-        double num = phero[i][j] * heuristic[i][j];
-        num = ALPHA == 0 ? num/phero[i][j] : num;
-        num = BETA == 0 ? num/heuristic[i][j] : num;
+        double p[3] = {0, 0, 0};
+        double deno = 0;
+        for(int k = x[i][j]; k < 3; k++) {
+            p[k] = phero[k][i][j] * heuristic[i][j];
+            deno += p[k];
+        }
 
-        double prob = num/(3 - sol[i][j]);
-        cout << "prob " << prob << endl;
+        for(int k = 0; k < 3; k++) {
+            p[k] /= deno;
+        }
         
-        int qnt_pontes = round(prob * (2 - sol[i][j]));
-        sol[i][j] += qnt_pontes;
+        uniform_real_distribution<> r(0, 1);
+
+        double random_number = r(g);
+        int q_bridges = -1;
+        if(random_number < p[0]) {
+            q_bridges = 0;
+        } else if(random_number < p[0] + p[1]) {
+            q_bridges = 1;
+        } else {
+            q_bridges = 2;
+        }
+
+        sol[i][j] = q_bridges;
     }
 
     return sol;
@@ -406,9 +421,7 @@ void update_pheromone(vector<vector<int>> &x,
     for(int i = 0; i < qi; i++) {
         for(int j = i + 1; j < qi; j++) {
             if(x[i][j] != sol_k[i][j]) {
-                cout << "mudou a celula " << i << " " << j << endl;
-                cout << "de " << x[i][j] << " para " << sol_k[i][j] << endl; 
-                phero[i][j] += Q/cost_k;
+                phero[sol_k[i][j]][i][j] += Q/cost_k;
             }
         }
     }
@@ -416,7 +429,11 @@ void update_pheromone(vector<vector<int>> &x,
 
 void init_info_values(const vector<pair<int, int>> &cellsToTest) {
     heuristic = vector<vector<int>>(qi, vector<int>(qi, 0));
-    phero = vector<vector<double>>(qi, vector<double>(qi, 1));
+    
+    for(int i = 0; i < 3; i++) {
+        phero[i] = vector<vector<double>>(qi, vector<double>(qi, 1));
+    }
+
     for(auto [i, j] : cellsToTest) {
         heuristic[i][j] = min(loc[i]->val, loc[j]->val);
     }
@@ -436,7 +453,7 @@ bool aco(vector<vector<int>> &x, const vector<pair<int, int>>& cellsToTest) {
             sol_ant[k] = build_solution(k, x, cellsToTest);
             cost_sol[k] = cost(sol_ant[k]);
 
-            cout << "custo da solução: " << cost_sol[k] << endl;
+            //cout << "custo da solução: " << cost_sol[k] << endl;
             if(cost_sol[k] == 0) {
                 x = sol_ant[k];
                 return true;
@@ -448,7 +465,9 @@ bool aco(vector<vector<int>> &x, const vector<pair<int, int>>& cellsToTest) {
         }
 
         for(auto [i, j] : cellsToTest) { // evaporação do feromonio
-            phero[i][j] = phero[i][j] * (1 - RO);
+            for(int k = 0; k < 3; k++) {
+                phero[k][i][j] = phero[k][i][j] * (1 - RO);
+            }   
         }
 
         for(int k = 0; k < N_ANTS; k++) {
@@ -633,8 +652,6 @@ int main() {
 
     //if(aco(x, cellsToTest)) {
         aco(x, cellsToTest);
-        cout << "aslkdmasd " << x[2][3] << endl;
-        cout << "aslkdmasd " << x[2][6] << endl;
         for(int i = 0; i < qi; i++) {
             for(int j = i + 1; j < qi; j++) {
                 for(int k = 0; k < x[i][j] - init_x[i][j]; k++) {
