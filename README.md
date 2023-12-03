@@ -1,12 +1,11 @@
 # Hashiwokakero
 Desenvolvimento de heurísticas, algoritmos exatos e meta-heurísticas para o problema NP-Completo associado ao puzzle Hashiwokakero.
 
-
-# Trabalho 1 - Desenvolvimento de heurística
-
-O primeiro trabalho consiste no desenvolvimento de uma heurística para o problema de decisão associado a Hashiwokakero.
-
 ## Como usar:
+
+Para executar o trabalho 1, sobre heurísticas, execute os passo abaixo dentro da pasta ```trabalho1```. 
+
+Para executar o trabalho 2, sobre algoritmos exatos, execute os passo abaixo dentro da pasta ```trabalho2```. 
 
 Primeiramente será necessário ter as seguintes dependências instaladas:
 
