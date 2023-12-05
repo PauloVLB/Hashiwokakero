@@ -11,9 +11,9 @@
 #define VERTICAL 3 // vertical line
 #define D_VERTICAL 4 // double vertical line
 
-#define MAX_IT 50
-#define N_ANTS 10
-#define RO 0.3
+#define MAX_IT 100
+#define N_ANTS 40
+#define RO 0.6
 #define ALPHA 1
 #define BETA 1
 #define Q 5
@@ -649,16 +649,51 @@ int main() {
         }
     }
 
-
-    //if(aco(x, cellsToTest)) {
-        aco(x, cellsToTest);
-        for(int i = 0; i < qi; i++) {
-            for(int j = i + 1; j < qi; j++) {
-                for(int k = 0; k < x[i][j] - init_x[i][j]; k++) {
-                    connect_cells(*loc[i], *loc[j]);
+    aco(x, cellsToTest);
+    changed = 0;
+    do {
+        changed = 0;
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                cell &c = board[i][j];
+                if(c.is_island()) {
+                    if(c.val == c.bot_value+c.lft_value+c.rgt_value+c.top_value){
+                        for(cell* to_connect : c.adj_list()) {
+                            changed++;
+                            connect_cells(c, *to_connect);
+                        }
+                    }
+                    for(int k = 3; k <= 8; k++) {
+                        int need_adj = k/2 + k%2;
+                        if(c.val == k && c.qnt_adj() == need_adj) {
+                            changed++;
+                            for(cell* to_connect : c.adj_list()) {
+                                connect_cells(c, *to_connect);
+                            }
+                            if(k%2 == 0){
+                                for(cell* to_connect : c.adj_list()) {
+                                    connect_cells(c, *to_connect);
+                                }
+                            }
+                        }
+                    }
+                    if(c.qnt_adj() == 1) {
+                        changed++;
+                        cell* to_connect = c.adj_list().back(); 
+                        connect_cells(c, *to_connect);
+                    }
                 }
             }
         }
+    } while(changed != 0);
+    
+    for(int i = 0; i < qi; i++) {
+        for(int j = i + 1; j < qi; j++) {
+            for(int k = 0; k < x[i][j] - init_x[i][j]; k++) {
+                connect_cells(*loc[i], *loc[j]);
+            }
+        }
+    }
     //}
 
     // termina de marcar o tempo -----------------------------------------------
