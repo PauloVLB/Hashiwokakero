@@ -7,6 +7,8 @@ Para executar o trabalho 1, sobre heurísticas, execute os passo abaixo dentro d
 
 Para executar o trabalho 2, sobre algoritmos exatos, execute os passo abaixo dentro da pasta ```trabalho2```. 
 
+Para executar o trabalho 3, sobre algoritmos meta-heurísticos, execute os passo abaixo dentro da pasta ```trabalho3```. 
+
 Primeiramente será necessário ter as seguintes dependências instaladas:
 
 - Programa `make` (normalmente já instalado em sistemas Linux);
